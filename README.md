@@ -20,19 +20,27 @@
 
 ## Istniejące modele
 
-A neural attention model for speech command recognition (Douglas et al. 2018)
+- A neural attention model for speech command recognition (Douglas et al. 2018)
+
 [model](https://github.com/douglas125/SpeechCmdRecognition)
+
 [paper](https://arxiv.org/abs/1808.08929)
 
-Hello Edge: Keyword Spotting on Microcontrollers (Zhang et al. 2018)
+- Hello Edge: Keyword Spotting on Microcontrollers (Zhang et al. 2018)
+
 [model](https://github.com/ARM-software/ML-KWS-for-MCU)
+
 [paper](https://arxiv.org/pdf/1711.07128)
 
-SPEECH RECOGNITION WITH DEEP RECURRENT NEURAL NETWORKS (Graves et al. 2013)
+- SPEECH RECOGNITION WITH DEEP RECURRENT NEURAL NETWORKS (Graves et al. 2013)
+
 [model](https://github.com/theblackcat102/edgedict)
+
 [paper](https://arxiv.org/pdf/1303.5778)
 
-Keyword spotting - Detecting commands in speech using deep learning (Rai et al. 2023)
+- Keyword spotting - Detecting commands in speech using deep learning (Rai et al. 2023)
+
 [model](https://github.com/sumedharai12/DetectingSpeechCommands)
+
 [paper](https://arxiv.org/pdf/2312.05640v1)
 
