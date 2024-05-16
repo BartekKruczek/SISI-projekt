@@ -15,3 +15,5 @@
 
 ## Przykładowy zbiór danych
 [speech_commands](https://www.tensorflow.org/datasets/catalog/speech_commands)
+
+[MLCommons Multilingual Spoken Words Dataset](https://mlcommons.org/datasets/multilingual-spoken-words/)
