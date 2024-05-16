@@ -16,6 +16,8 @@
 ## Przykładowe zbiory danych
 - [speech_commands](https://www.tensorflow.org/datasets/catalog/speech_commands)
 
+[a tu są artykuły na jego podstawie](https://paperswithcode.com/dataset/speech-commands)
+
 - [MLCommons Multilingual Spoken Words Dataset](https://mlcommons.org/datasets/multilingual-spoken-words/)
 
 ## Istniejące modele
