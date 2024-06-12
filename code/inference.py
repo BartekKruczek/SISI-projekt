@@ -1,72 +1,60 @@
 import pyaudio
 import numpy as np
-import librosa
-import numpy as np
-import sounddevice
-import time
-import pyaudio
-import wave
-
 from multilingual_kws.embedding import input_data
 import tensorflow as tf
 
-model = tf.keras.models.load_model("/home/piotrek/Documents/personal/STUDIA_DS/semestr_1/PP/multilingual_kws/off_5shot")
+class RealTimePrediction:
+    def __init__(self, model_path, chunk=1600, format=pyaudio.paInt16, channels=1, rate=16000):
+        self.chunk = chunk
+        self.format = format
+        self.channels = channels
+        self.rate = rate
+        self.frames = []
+        self.model = tf.keras.models.load_model(model_path)
+        self.settings = input_data.standard_microspeech_model_settings(label_count=1)
+        self.init_audio_stream()
 
-def make_prediction(audio: np.array):
-    
-    settings = input_data.standard_microspeech_model_settings(label_count=1)
-    spectrogram = np.expand_dims(input_data.to_micro_spectrogram(settings, audio), axis=0)
-    
-    # fetch softmax predictions from the finetuned model:
-    # (class 0: silence/background noise, class 1: unknown keyword, class 2: target)
+    def init_audio_stream(self):
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format=self.format,
+                                  channels=self.channels,
+                                  rate=self.rate,
+                                  input=True,
+                                  frames_per_buffer=self.chunk)
 
-    predictions = model.predict(spectrogram,verbose=None)
-    categorical_predictions = np.argmax(predictions, axis=1)
-    
-    return predictions, categorical_predictions
+    def make_prediction(self, audio: np.array):
+        spectrogram = np.expand_dims(input_data.to_micro_spectrogram(self.settings, audio), axis=0)
+        predictions = self.model.predict(spectrogram, verbose=None)
+        categorical_predictions = np.argmax(predictions, axis=1)
+        return predictions, categorical_predictions
 
-def main():
-    CHUNK = 1600
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    WAVE_OUTPUT_FILENAME = "output.wav"
-    
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
-
-    try:
+    def record_and_predict(self):
         print("* recording")
-
-        frames = []
-
-        # for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-        while True:
-            data = stream.read(CHUNK)
-            data = np.frombuffer(data, dtype=np.int16) / np.iinfo(np.int16).max
-            frames.append(data)
-            
-            if len(frames) > 10:
-                del frames[0]
-
-            if len(frames) > 0:
-                infer_second = np.concatenate(frames)
-                if infer_second.shape[0] < 16000:
-                    infer_second = np.concatenate([infer_second, np.zeros(16000-infer_second.shape[0])])
+        try:
+            while True:
+                data = self.stream.read(self.chunk)
+                data = np.frombuffer(data, dtype=np.int16) / np.iinfo(np.int16).max
+                self.frames.append(data)
                 
-                predictions, categorical_predictions = make_prediction(infer_second)
-                print(predictions)
-        
-    finally:
+                if len(self.frames) > 10:
+                    self.frames.pop(0)
+
+                if self.frames:
+                    infer_second = np.concatenate(self.frames)
+                    if infer_second.shape[0] < 16000:
+                        infer_second = np.pad(infer_second, (0, 16000 - infer_second.shape[0]))
+                    
+                    predictions, categorical_predictions = self.make_prediction(infer_second)
+                    print(predictions)
+        finally:
+            self.cleanup()
+
+    def cleanup(self):
         print("* done recording")
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        
-        
-main()
+        self.stream.stop_stream()
+        self.stream.close()
+        self.p.terminate()
+
+if __name__ == "__main__":
+    model_path = "modelpath"
+    RealTimePrediction(model_path).record_and_predict()
