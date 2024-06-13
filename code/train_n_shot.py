@@ -111,21 +111,25 @@ class KWSModelTrainer:
             backprop_into_embedding=False,
             embedding_lr=0,
             model_settings=model_settings,
-            base_model_path="./content/embedding_model/multilingual_context_73_0.8011",
+            base_model_path=model_path,
             base_model_output="dense_2",
             UNKNOWN_PERCENTAGE=50.0,
             bg_datadir=background_noise,
             csvlog_dest=None,
         )
-        model_path = f"./data_n_shot/{keyword}_{len(train_files)}_shot"
-        model.save(model_path)
-        print(f"Model saved as {model_path}")
-        return model_path
+        save_model_path = f"./data_n_shot/{keyword}_{len(train_files)}_shot"
+        model.save(save_model_path)
+        print(f"Model saved as {save_model_path}")
+        return save_model_path
 
 class AudioRecorderApp:
     def __init__(self, root: tk.Tk, input_device_index: int, model_path: str, background_noise: str, unknown_files_txt: str):
         self.root = root
         self.input_device_index = input_device_index
+        self.model_path=model_path 
+        self.background_noise=background_noise 
+        self.unknown_files_txt=unknown_files_txt
+        
         self.root.title("Audio Recorder with Prediction")
         self.num_wav = 0
         self.is_recording = False
@@ -222,20 +226,26 @@ class AudioRecorderApp:
 
     def finetune_model(self):
         KWSModelTrainer.finetune_kws(
-            model_path=model_path,
+            model_path=self.model_path,
             data_dir="data_n_shot",
-            background_noise=background_noise,
-            unknown_files_txt=unknown_files_txt,
+            background_noise=self.background_noise,
+            unknown_files_txt=self.unknown_files_txt,
         )
 
 if __name__ == "__main__":
     print(sd.query_devices())
     input_device_index = -1
 
-    model_path = "./content/embedding_model/multilingual_context_73_0.8011"
-    background_noise = "../speech_commands/_background_noise_/"
-    unknown_files_txt = "../unknown_files.txt"
+    model_path = "./data/multilingual_context_73_0.8011"
+    background_noise = "./data/_background_noise_/"
+    unknown_files_txt = "./data/unknown_files/unknown_files.txt"
 
     root = tk.Tk()
-    app = AudioRecorderApp(root, input_device_index, model_path, background_noise, unknown_files_txt)
+    app = AudioRecorderApp(
+        root=root, 
+        input_device_index=input_device_index, 
+        model_path=model_path, 
+        background_noise=background_noise, 
+        unknown_files_txt=unknown_files_txt
+        )
     root.mainloop()

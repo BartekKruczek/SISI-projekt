@@ -46,3 +46,6 @@
 
 [paper](https://arxiv.org/pdf/2312.05640v1)
 
+Wymagania (linux):
+- python3-tk
+- python3-pyaudio
